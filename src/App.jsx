@@ -7,14 +7,12 @@ import { WORDS } from './constants/words';
 import { getWordOfDay, loadGameState, saveGameState } from './lib/gameLogic';
 
 export default function App() {
-  // 1. Get Today's Word Data
-  const { solution, translation, dayIndex, nextDay } = getWordOfDay();
+  // 1. Get Today's Word Data (Refreshes every 3 hours)
+  const { solution, translation, intervalIndex, nextDay } = getWordOfDay();
   const SOLUTION = solution; 
 
   // 2. Initial State Setup
   const [gameStarted, setGameStarted] = useState(false);
-  
-  // Game Variables
   const [turn, setTurn] = useState(0);
   const [currentGuess, setCurrentGuess] = useState('');
   const [guesses, setGuesses] = useState(Array(6).fill(null));
@@ -28,33 +26,49 @@ export default function App() {
   const [toastMessage, setToastMessage] = useState(null);
 
   // 3. LOAD GAME ON STARTUP
+  // This hook checks localStorage and populates the state if a game is in progress
   useEffect(() => {
     const saved = loadGameState();
     
-    if (saved && saved.dayIndex === dayIndex) {
+    if (saved) {
       setGuesses(saved.guesses);
       setTurn(saved.turn);
       setIsCorrect(saved.isCorrect);
       setUsedKeys(saved.usedKeys);
       setIsGameFinished(saved.isGameFinished);
+      
+      // If they have already made progress, skip the Intro screen
+      if (saved.turn > 0 || saved.isGameFinished) {
+        setGameStarted(true);
+      }
     } 
-  }, [dayIndex]);
+  }, []); // Only runs once on initial mount
 
   // 4. SAVE GAME ON EVERY UPDATE
+  // We save the state whenever the user makes a move
   useEffect(() => {
-    if (turn > 0 || isGameFinished || currentGuess.length > 0) {
+    if (turn > 0 || isGameFinished) {
       saveGameState({
         guesses,
         turn,
         isCorrect,
         usedKeys,
         isGameFinished,
-        dayIndex
+        solution: SOLUTION // We save the word itself to verify the 3-hour window in gameLogic.js
       });
     }
-  }, [guesses, turn, isCorrect, usedKeys, isGameFinished, dayIndex, currentGuess]);
+  }, [guesses, turn, isCorrect, usedKeys, isGameFinished, SOLUTION]);
 
-  // 5. KEYBOARD LISTENER
+  // 5. AUTO-SHOW MODAL
+  // If the game is already finished (e.g., on refresh), show the results modal
+  useEffect(() => {
+    if (isGameFinished && gameStarted) {
+      const timer = setTimeout(() => setShowModal(true), 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [isGameFinished, gameStarted]);
+
+  // 6. KEYBOARD LISTENER
   useEffect(() => {
     if (!gameStarted || isGameFinished) return; 
 
@@ -73,6 +87,7 @@ export default function App() {
   // --- GAMEPLAY ACTIONS ---
 
   const onChar = (char) => {
+    // Current validation: only allow 5-letter words
     if (currentGuess.length < 5 && turn < 6 && !isCorrect) {
       setCurrentGuess((prev) => prev + char);
     }
@@ -80,57 +95,6 @@ export default function App() {
 
   const onDelete = () => {
     setCurrentGuess((prev) => prev.slice(0, -1));
-  };
-
-  const onEnter = () => {
-    if (turn >= 6 || isCorrect || isGameFinished) return;
-
-    // VALIDATION A: Length
-    if (currentGuess.length !== 5) { 
-      triggerError('Цхьа хIума гIалат ду'); // Not enough letters
-      return; 
-    }
-    
-    // VALIDATION B: Dictionary (Cleaning the search to prevent hidden character errors)
-    const normalizedGuess = currentGuess.trim().toUpperCase();
-    const wordExists = WORDS.some(w => 
-        w.word.trim().toUpperCase() === normalizedGuess
-    );
-
-    if (!wordExists) { 
-      triggerError('Дош дацаре терра ду'); // Not in word list
-      return; 
-    }
-
-    // --- PROCESS VALID GUESS ---
-    const formatted = formatGuess();
-    const newGuesses = [...guesses];
-    newGuesses[turn] = formatted;
-    setGuesses(newGuesses);
-
-    const newUsedKeys = { ...usedKeys };
-    formatted.forEach((l) => {
-      const currentColor = newUsedKeys[l.key];
-      if (l.color === 'correct') newUsedKeys[l.key] = 'correct';
-      else if (l.color === 'present' && currentColor !== 'correct') newUsedKeys[l.key] = 'present';
-      else if (l.color === 'absent' && currentColor !== 'correct' && currentColor !== 'present') newUsedKeys[l.key] = 'absent';
-    });
-    setUsedKeys(newUsedKeys);
-
-    let won = (normalizedGuess === SOLUTION.trim().toUpperCase());
-    let lost = (turn === 5 && !won);
-
-    if (won) {
-      setIsCorrect(true);
-      setIsGameFinished(true);
-      setTimeout(() => setShowModal(true), 2500);
-    } else if (lost) {
-      setIsGameFinished(true);
-      setTimeout(() => setShowModal(true), 2500);
-    }
-
-    setTurn(prev => prev + 1);
-    setCurrentGuess('');
   };
 
   const triggerError = (msg) => {
@@ -160,15 +124,58 @@ export default function App() {
     return formatted;
   };
 
+  const onEnter = () => {
+    if (turn >= 6 || isCorrect || isGameFinished) return;
+
+    if (currentGuess.length !== 5) { 
+      triggerError('Цхьа хIума гIалат ду'); // Not enough letters
+      return; 
+    }
+    
+    const normalizedGuess = currentGuess.trim().toUpperCase();
+    const wordExists = WORDS.some(w => 
+        w.word.trim().toUpperCase() === normalizedGuess
+    );
+
+    if (!wordExists) { 
+      triggerError('Дош дацаре терра ду'); // Not in word list
+      return; 
+    }
+
+    const formatted = formatGuess();
+    const newGuesses = [...guesses];
+    newGuesses[turn] = formatted;
+    setGuesses(newGuesses);
+
+    const newUsedKeys = { ...usedKeys };
+    formatted.forEach((l) => {
+      const currentColor = newUsedKeys[l.key];
+      if (l.color === 'correct') newUsedKeys[l.key] = 'correct';
+      else if (l.color === 'present' && currentColor !== 'correct') newUsedKeys[l.key] = 'present';
+      else if (l.color === 'absent' && currentColor !== 'correct' && currentColor !== 'present') newUsedKeys[l.key] = 'absent';
+    });
+    setUsedKeys(newUsedKeys);
+
+    let won = (normalizedGuess === SOLUTION.trim().toUpperCase());
+    let lost = (turn === 5 && !won);
+
+    if (won) {
+      setIsCorrect(true);
+      setIsGameFinished(true);
+    } else if (lost) {
+      setIsGameFinished(true);
+    }
+
+    setTurn(prev => prev + 1);
+    setCurrentGuess('');
+  };
+
   // --- RENDER ---
 
   if (!gameStarted) {
     return <Intro 
       onStart={() => {
         setGameStarted(true);
-        if (isGameFinished) {
-          setTimeout(() => setShowModal(true), 500);
-        }
       }} 
       isGameFinished={isGameFinished} 
     />;
@@ -234,66 +241,3 @@ export default function App() {
     </div>
   );
 }
-
-
-const onEnter = () => {
-    console.log("Enter Pressed. Guess:", currentGuess); // DEBUG
-
-    if (turn >= 6 || isCorrect || isGameFinished) return;
-
-    // VALIDATION A: Length
-    if (currentGuess.length !== 5) { 
-      console.log("Validation Failed: Length"); 
-      triggerError('Цхьа хIума гIалат ду'); 
-      return; 
-    }
-    
-    // VALIDATION B: Dictionary (CLEANED CHECK)
-    const normalizedGuess = currentGuess.trim().toUpperCase();
-    const wordExists = WORDS.some(w => {
-        const dictionaryWord = w.word.trim().toUpperCase();
-        return dictionaryWord === normalizedGuess;
-    });
-
-    if (!wordExists) { 
-      console.log("Validation Failed: Not in dictionary"); 
-      triggerError('Дош дацаре терра ду'); 
-      return; 
-    }
-
-    console.log("Validation Passed. Processing...");
-
-    // --- PROCESS VALID GUESS ---
-    const formatted = formatGuess();
-    const newGuesses = [...guesses];
-    newGuesses[turn] = formatted;
-    setGuesses(newGuesses);
-
-    // Update Used Keys for the Keyboard
-    const newUsedKeys = { ...usedKeys };
-    formatted.forEach((l) => {
-      const currentColor = newUsedKeys[l.key];
-      if (l.color === 'correct') newUsedKeys[l.key] = 'correct';
-      else if (l.color === 'present' && currentColor !== 'correct') newUsedKeys[l.key] = 'present';
-      else if (l.color === 'absent' && currentColor !== 'correct' && currentColor !== 'present') newUsedKeys[l.key] = 'absent';
-    });
-    setUsedKeys(newUsedKeys);
-
-    // WIN/LOSS CHECK (CLEANED)
-    const cleanSolution = SOLUTION.trim().toUpperCase();
-    let won = (normalizedGuess === cleanSolution);
-    let lost = (turn === 5 && !won);
-
-    if (won) {
-      setIsCorrect(true);
-      setIsGameFinished(true);
-      setTimeout(() => setShowModal(true), 2500);
-    } else if (lost) {
-      setIsGameFinished(true);
-      setTimeout(() => setShowModal(true), 2500);
-    }
-
-    // Move to next turn
-    setTurn(prev => prev + 1);
-    setCurrentGuess('');
-  };

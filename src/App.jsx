@@ -177,34 +177,26 @@ export default function App() {
   }
 
   return (
-    // FIX 1: Use h-[100dvh] to match mobile viewport height exactly
     <div className="flex flex-col h-[100dvh] w-full max-w-lg mx-auto overflow-hidden bg-[#121213] relative">
       
-      {/* UPDATED HEADER: 
-          1. Reduced height from h-16 to h-12 to save space.
-          2. Removed the <h1> Title completely.
-      */}
-      <header className="flex h-12 items-center justify-between px-4 border-b border-[#3a3a3c] shrink-0">
+      {/* UPDATED HEADER: Ultra Slim (h-8) + minimal margin */}
+      <header className="flex h-8 items-center justify-between px-4 border-b border-[#3a3a3c] shrink-0 mt-1">
          <button 
            onClick={() => setGameStarted(false)}
            className="text-[#565758] hover:text-white transition-colors p-2 -ml-2"
            aria-label="Exit to Home"
          >
-           {/* Exit / Back Icon */}
-           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
            </svg>
          </button>
-         
-         {/* Title has been removed for space */}
          
          <button 
            onClick={() => { if(isGameFinished) setShowModal(true); }}
            className={`text-[#565758] hover:text-white transition-all p-2 -mr-2 ${isGameFinished ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
            aria-label="Show Stats"
          >
-           {/* Chart / Stats Icon */}
-           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
              <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
            </svg>
          </button>
@@ -218,12 +210,13 @@ export default function App() {
         </div>
       )}
 
-      {/* FIX 2: min-h-0 allows this container to shrink if space is tight. */}
-      <main className="flex-grow flex flex-col items-center justify-center p-2 min-h-0">
+      {/* MAIN: Reduced padding to p-1 to allow Grid to touch edges if needed */}
+      <main className="flex-grow flex flex-col items-center justify-center p-1 min-h-0">
         <Grid guesses={guesses} currentGuess={currentGuess} turn={turn} isShaking={isShaking} />
       </main>
 
-      <footer className="shrink-0 pb-safe">
+      {/* FOOTER: Removed pb-safe to reduce bottom whitespace (Keyboard handles its own padding now) */}
+      <footer className="shrink-0">
         <Keyboard onChar={onChar} onDelete={onDelete} onEnter={onEnter} usedKeys={usedKeys} />
       </footer>
 

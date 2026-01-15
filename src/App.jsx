@@ -179,18 +179,12 @@ export default function App() {
   return (
     <div className="flex flex-col h-[100dvh] w-full max-w-lg mx-auto overflow-hidden bg-[#121213] relative">
       
-      {/* UPDATED HEADER: Ultra Slim (h-8) + minimal margin */}
-      <header className="flex h-8 items-center justify-between px-4 border-b border-[#3a3a3c] shrink-0 mt-1">
-         <button 
-           onClick={() => setGameStarted(false)}
-           className="text-[#565758] hover:text-white transition-colors p-2 -ml-2"
-           aria-label="Exit to Home"
-         >
-           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-           </svg>
-         </button>
-         
+      {/* HEADER CHANGES: 
+        1. Removed the left button (X).
+        2. Changed justify-between to justify-end (pushes Stats icon to the right).
+        3. Removed 'border-b border-[#3a3a3c]' (removes the line).
+      */}
+      <header className="flex h-8 items-center justify-end px-4 shrink-0 mt-2">
          <button 
            onClick={() => { if(isGameFinished) setShowModal(true); }}
            className={`text-[#565758] hover:text-white transition-all p-2 -mr-2 ${isGameFinished ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
@@ -210,13 +204,17 @@ export default function App() {
         </div>
       )}
 
-      {/* MAIN: Reduced padding to p-1 to allow Grid to touch edges if needed */}
-      <main className="flex-grow flex flex-col items-center justify-center p-1 min-h-0">
+      {/* MAIN CHANGES: 
+         1. Added 'mb-4' to create space between the Grid and the Keyboard.
+      */}
+      <main className="flex-grow flex flex-col items-center justify-center p-1 min-h-0 mb-4">
         <Grid guesses={guesses} currentGuess={currentGuess} turn={turn} isShaking={isShaking} />
       </main>
 
-      {/* FOOTER: Removed pb-safe to reduce bottom whitespace (Keyboard handles its own padding now) */}
-      <footer className="shrink-0">
+      {/* FOOTER CHANGES:
+         1. Added 'pb-8' to add space at the very bottom of the screen (for mobile home bars).
+      */}
+      <footer className="shrink-0 pb-8">
         <Keyboard onChar={onChar} onDelete={onDelete} onEnter={onEnter} usedKeys={usedKeys} />
       </footer>
 

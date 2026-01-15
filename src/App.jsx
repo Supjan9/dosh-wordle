@@ -179,11 +179,7 @@ export default function App() {
   return (
     <div className="flex flex-col h-[100dvh] w-full max-w-lg mx-auto overflow-hidden bg-[#121213] relative">
       
-      {/* HEADER CHANGES: 
-        1. Reduced top margin from mt-2 to mt-1.5 (~30% less)
-        2. justify-end keeps stats icon on the right
-      */}
-      <header className="flex h-8 items-center justify-end px-4 shrink-0 mt-1.5">
+      <header className="flex h-8 items-center justify-end px-4 shrink-0 mt-0 pt-1">
          <button 
            onClick={() => { if(isGameFinished) setShowModal(true); }}
            className={`text-[#565758] hover:text-white transition-all p-2 -mr-2 ${isGameFinished ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
@@ -203,15 +199,16 @@ export default function App() {
         </div>
       )}
 
-      {/* MAIN: mb-4 creates the gap between Grid and Keyboard */}
-      <main className="flex-grow flex flex-col items-center justify-center p-1 min-h-0 mb-4">
+      {/* MAIN CHANGES:
+         1. Changed 'justify-center' to 'justify-start'. This moves the grid to the top.
+         2. Added 'pt-4' (padding-top) so the grid doesn't touch the header directly. 
+            The grid will now consume that top empty space.
+      */}
+      <main className="flex-grow flex flex-col items-center justify-start p-1 pt-4 min-h-0 mb-2 w-full">
         <Grid guesses={guesses} currentGuess={currentGuess} turn={turn} isShaking={isShaking} />
       </main>
 
-      {/* FOOTER CHANGES:
-         1. Reduced padding-bottom from pb-8 to pb-6 (~25-30% less)
-      */}
-      <footer className="shrink-0 pb-6">
+      <footer className="shrink-0 pb-2">
         <Keyboard onChar={onChar} onDelete={onDelete} onEnter={onEnter} usedKeys={usedKeys} />
       </footer>
 

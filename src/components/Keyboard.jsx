@@ -5,18 +5,18 @@ export default function Keyboard({ onChar, onDelete, onEnter, usedKeys }) {
   return (
     // UPDATED: Reduced bottom padding from pb-6 to pb-1 to save huge space
     <div className="w-full max-w-lg mx-auto px-1 pb-1 select-none">
-      
+
       {/* 1. The Letter Rows */}
       <div className="flex flex-col gap-2 mb-2">
         {ALPHABET.map((row, i) => (
           <div key={i} className="flex justify-center gap-1 w-full">
             {row.map((char) => {
-              const status = usedKeys[char]; 
-              
-              let bgColor = 'bg-[#818384]'; 
-              if (status === 'correct') bgColor = 'bg-[#6aaa64]'; 
-              else if (status === 'present') bgColor = 'bg-[#c9b458]'; 
-              else if (status === 'absent') bgColor = 'bg-[#3a3a3c]'; 
+              const status = usedKeys[char];
+
+              let bgColor = 'bg-[#818384]';
+              if (status === 'correct') bgColor = 'bg-[#6aaa64]';
+              else if (status === 'present') bgColor = 'bg-[#c9b458]';
+              else if (status === 'absent') bgColor = 'bg-[#3a3a3c]';
 
               return (
                 <button
@@ -38,15 +38,15 @@ export default function Keyboard({ onChar, onDelete, onEnter, usedKeys }) {
       <div className="flex gap-2 px-4">
         <button
           onClick={onEnter}
-          // UPDATED: Reduced height from h-14 to h-9 (~35% smaller)
-          className="flex-1 h-9 bg-[#565758] rounded-lg font-bold text-xs sm:text-sm text-white uppercase tracking-wider active:bg-[#404040] transition-colors"
+          // UPDATED: Increased from h-9 to h-12 (48px)
+          className="flex-1 h-12 bg-[#565758] rounded-lg font-bold text-xs sm:text-sm text-white uppercase tracking-wider active:bg-[#404040] transition-colors"
         >
           ENTER
         </button>
         <button
           onClick={onDelete}
-          // UPDATED: Reduced height from h-14 to h-9
-          className="flex-1 h-9 bg-[#565758] rounded-lg font-bold text-xs sm:text-sm text-white uppercase tracking-wider active:bg-[#404040] transition-colors"
+          // UPDATED: Increased from h-9 to h-12 (48px)
+          className="flex-1 h-12 bg-[#565758] rounded-lg font-bold text-xs sm:text-sm text-white uppercase tracking-wider active:bg-[#404040] transition-colors"
         >
           DELETE
         </button>

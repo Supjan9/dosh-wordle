@@ -177,11 +177,12 @@ export default function App() {
   }
 
   return (
+    // FIX 1: Use h-[100dvh] to match mobile viewport height exactly
     <div className="flex flex-col h-[100dvh] w-full max-w-lg mx-auto overflow-hidden bg-[#121213] relative">
       
       {/* UPDATED HEADER: 
-         1. Reduced height from h-16 to h-12 to save space.
-         2. Removed the <h1> Title completely.
+          1. Reduced height from h-16 to h-12 to save space.
+          2. Removed the <h1> Title completely.
       */}
       <header className="flex h-12 items-center justify-between px-4 border-b border-[#3a3a3c] shrink-0">
          <button 
@@ -217,6 +218,7 @@ export default function App() {
         </div>
       )}
 
+      {/* FIX 2: min-h-0 allows this container to shrink if space is tight. */}
       <main className="flex-grow flex flex-col items-center justify-center p-2 min-h-0">
         <Grid guesses={guesses} currentGuess={currentGuess} turn={turn} isShaking={isShaking} />
       </main>

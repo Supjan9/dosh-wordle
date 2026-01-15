@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Share2, X, Copy, Check } from 'lucide-react';
+import { X, Copy, Check } from 'lucide-react'; // Removed Share2, added Copy
 
 export default function Modal({ isWon, solution, translation, turn, guesses, isVisible, onClose, nextDayTimestamp }) {
-  const [shareText, setShareText] = useState('ДЕКЪА'); // "Share" in Chechen
+  const [shareText, setShareText] = useState('ДЕКЪА'); // "Share"
   const [timeLeft, setTimeLeft] = useState('');
 
   // --- COUNTDOWN TIMER ---
@@ -19,7 +19,6 @@ export default function Modal({ isWon, solution, translation, turn, guesses, isV
         const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
         const m = Math.floor((diff / 1000 / 60) % 60);
         const s = Math.floor((diff / 1000) % 60);
-        // Pad numbers with zeros (e.g., 01:05:09)
         setTimeLeft(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`);
       }
     }, 1000);
@@ -28,11 +27,9 @@ export default function Modal({ isWon, solution, translation, turn, guesses, isV
 
   if (!isVisible) return null;
 
-  // --- SHARE LOGIC ---
+  // --- SHARE LOGIC (FORCED COPY) ---
   const handleShare = async () => {
     // 1. Generate Emoji Grid
-    // We slice from 0 to 'turn' because 'turn' increments after every guess.
-    // If you won on the 4th try, turn is 4, so we need indices 0, 1, 2, 3.
     const emojiGrid = guesses
       .slice(0, turn) 
       .map((row) => {
@@ -47,23 +44,14 @@ export default function Modal({ isWon, solution, translation, turn, guesses, isV
     const title = `ДОШ ${isWon ? turn : 'X'}/6`;
     const textToShare = `${title}\n\n${emojiGrid}\n\nhttps://supjan9.github.io/dosh-wordle`;
 
-    // 2. Mobile Native Share
-    if (navigator.share) {
-      try {
-        await navigator.share({ text: textToShare });
-        return;
-      } catch (err) {
-        console.log('Share cancelled');
-      }
-    }
-
-    // 3. Desktop Clipboard Fallback (Robust)
+    // 2. Copy to Clipboard (Directly)
     try {
+      // Modern Copy Method (Works on HTTPS and Localhost)
       if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(textToShare);
         triggerCopyFeedback();
       } else {
-        // Fallback for older browsers or non-HTTPS
+        // Legacy Copy Method (For older browsers or HTTP)
         const textArea = document.createElement("textarea");
         textArea.value = textToShare;
         textArea.style.position = "fixed";
@@ -71,12 +59,18 @@ export default function Modal({ isWon, solution, translation, turn, guesses, isV
         document.body.appendChild(textArea);
         textArea.focus();
         textArea.select();
-        document.execCommand('copy');
+        
+        try {
+          document.execCommand('copy');
+          triggerCopyFeedback();
+        } catch (err) {
+          alert("Copy failed. Please take a screenshot!");
+        }
+        
         document.body.removeChild(textArea);
-        triggerCopyFeedback();
       }
     } catch (err) {
-      alert("Browser blocked copy. Please screenshot!");
+      alert("Error copying to clipboard");
     }
   };
 
@@ -139,7 +133,8 @@ export default function Modal({ isWon, solution, translation, turn, guesses, isV
               ${shareText === 'СХЬАИЙЦИ!' ? 'bg-white text-black' : 'bg-[#538d4e] hover:bg-[#467a41] text-white'}
             `}
           >
-            {shareText === 'ДЕКЪА' && <Share2 className="w-4 h-4" />}
+            {/* UPDATED ICON: Uses Copy instead of Share2 */}
+            {shareText === 'ДЕКЪА' && <Copy className="w-4 h-4" />}
             {shareText === 'СХЬАИЙЦИ!' && <Check className="w-4 h-4" />}
             {shareText}
           </button>

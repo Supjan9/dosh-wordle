@@ -26,7 +26,6 @@ export default function App() {
   const [toastMessage, setToastMessage] = useState(null);
 
   // 3. LOAD GAME ON STARTUP
-  // This hook checks localStorage and populates the state if a game is in progress
   useEffect(() => {
     const saved = loadGameState();
     
@@ -37,15 +36,13 @@ export default function App() {
       setUsedKeys(saved.usedKeys);
       setIsGameFinished(saved.isGameFinished);
       
-      // If they have already made progress, skip the Intro screen
       if (saved.turn > 0 || saved.isGameFinished) {
         setGameStarted(true);
       }
     } 
-  }, []); // Only runs once on initial mount
+  }, []); 
 
   // 4. SAVE GAME ON EVERY UPDATE
-  // We save the state whenever the user makes a move
   useEffect(() => {
     if (turn > 0 || isGameFinished) {
       saveGameState({
@@ -54,13 +51,12 @@ export default function App() {
         isCorrect,
         usedKeys,
         isGameFinished,
-        solution: SOLUTION // We save the word itself to verify the 3-hour window in gameLogic.js
+        solution: SOLUTION 
       });
     }
   }, [guesses, turn, isCorrect, usedKeys, isGameFinished, SOLUTION]);
 
   // 5. AUTO-SHOW MODAL
-  // If the game is already finished (e.g., on refresh), show the results modal
   useEffect(() => {
     if (isGameFinished && gameStarted) {
       const timer = setTimeout(() => setShowModal(true), 1500);
@@ -87,7 +83,6 @@ export default function App() {
   // --- GAMEPLAY ACTIONS ---
 
   const onChar = (char) => {
-    // Current validation: only allow 5-letter words
     if (currentGuess.length < 5 && turn < 6 && !isCorrect) {
       setCurrentGuess((prev) => prev + char);
     }
@@ -128,7 +123,7 @@ export default function App() {
     if (turn >= 6 || isCorrect || isGameFinished) return;
 
     if (currentGuess.length !== 5) { 
-      triggerError('Цхьа хIума гIалат ду'); // Not enough letters
+      triggerError('Цхьа хIума гIалат ду'); 
       return; 
     }
     
@@ -138,7 +133,7 @@ export default function App() {
     );
 
     if (!wordExists) { 
-      triggerError('Дош дацаре терра ду'); // Not in word list
+      triggerError('Дош дацаре терра ду'); 
       return; 
     }
 
@@ -182,30 +177,32 @@ export default function App() {
   }
 
   return (
-    <div className="flex flex-col h-full w-full max-w-lg mx-auto overflow-hidden bg-[#121213] relative">
-      <header className="flex h-16 items-center justify-between px-4 border-b border-[#3a3a3c] shrink-0">
+    <div className="flex flex-col h-[100dvh] w-full max-w-lg mx-auto overflow-hidden bg-[#121213] relative">
+      
+      {/* UPDATED HEADER: 
+         1. Reduced height from h-16 to h-12 to save space.
+         2. Removed the <h1> Title completely.
+      */}
+      <header className="flex h-12 items-center justify-between px-4 border-b border-[#3a3a3c] shrink-0">
          <button 
            onClick={() => setGameStarted(false)}
            className="text-[#565758] hover:text-white transition-colors p-2 -ml-2"
            aria-label="Exit to Home"
          >
+           {/* Exit / Back Icon */}
            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
            </svg>
          </button>
          
-         <h1 
-           onClick={() => setGameStarted(false)} 
-           className="text-3xl font-black tracking-widest text-white uppercase cursor-pointer hover:opacity-80 transition-opacity select-none"
-         >
-           ДОШ
-         </h1>
+         {/* Title has been removed for space */}
          
          <button 
            onClick={() => { if(isGameFinished) setShowModal(true); }}
            className={`text-[#565758] hover:text-white transition-all p-2 -mr-2 ${isGameFinished ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
            aria-label="Show Stats"
          >
+           {/* Chart / Stats Icon */}
            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
              <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
            </svg>
@@ -220,7 +217,7 @@ export default function App() {
         </div>
       )}
 
-      <main className="flex-grow flex items-center justify-center p-2 overflow-hidden">
+      <main className="flex-grow flex flex-col items-center justify-center p-2 min-h-0">
         <Grid guesses={guesses} currentGuess={currentGuess} turn={turn} isShaking={isShaking} />
       </main>
 

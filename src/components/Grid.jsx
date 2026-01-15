@@ -2,7 +2,8 @@ import React from 'react';
 
 export default function Grid({ guesses, currentGuess, turn, isShaking }) {
   return (
-    <div className="flex flex-col gap-1.5 w-full max-w-[350px] px-2">
+    // UPDATED: Added 'h-full' and 'justify-center' so it centers vertically in the available space
+    <div className="flex flex-col gap-1.5 w-full max-w-[350px] px-2 h-full justify-center">
       {guesses.map((guess, i) => {
         if (turn === i) {
           // Pass the 'isShaking' prop ONLY to the current row
@@ -33,7 +34,7 @@ function Row({ guess, currentGuess, isRevealed, isShaking }) {
   return (
     <div className={`grid grid-cols-5 gap-1.5 ${isShaking ? 'animate-shake' : ''}`}>
       {/* ^ NOTICE: The 'animate-shake' class is applied to the ROW container 
-         if 'isShaking' is true. This shakes the whole word together.
+          if 'isShaking' is true. This shakes the whole word together.
       */}
       
       {tiles.map((char, i) => {
@@ -53,9 +54,11 @@ function Row({ guess, currentGuess, isRevealed, isShaking }) {
               '--correct-color': colorHex, 
               animationDelay: isRevealed ? animationDelay : '0s' 
             }}
+            // UPDATED: Changed text-3xl to 'text-2xl sm:text-3xl'
+            // This prevents the letter from being too big on small screens
             className={`
               w-full aspect-square border-2 flex items-center justify-center 
-              text-3xl font-bold uppercase text-white select-none
+              text-2xl sm:text-3xl font-bold uppercase text-white select-none
               ${isRevealed ? 'animate-flip' : 'border-[#565758] animate-pop'}
               ${!isRevealed && 'border-[#818384]'}
             `}

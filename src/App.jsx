@@ -1,0 +1,299 @@
+import React, { useState, useEffect } from 'react';
+import Grid from './components/Grid';
+import Keyboard from './components/Keyboard';
+import Modal from './components/Modal';
+import Intro from './components/Intro';
+import { WORDS } from './constants/words';
+import { getWordOfDay, loadGameState, saveGameState } from './lib/gameLogic';
+
+export default function App() {
+  // 1. Get Today's Word Data
+  const { solution, translation, dayIndex, nextDay } = getWordOfDay();
+  const SOLUTION = solution; 
+
+  // 2. Initial State Setup
+  const [gameStarted, setGameStarted] = useState(false);
+  
+  // Game Variables
+  const [turn, setTurn] = useState(0);
+  const [currentGuess, setCurrentGuess] = useState('');
+  const [guesses, setGuesses] = useState(Array(6).fill(null));
+  const [isCorrect, setIsCorrect] = useState(false);
+  const [usedKeys, setUsedKeys] = useState({});
+  const [isGameFinished, setIsGameFinished] = useState(false);
+
+  // UI Variables
+  const [showModal, setShowModal] = useState(false);
+  const [isShaking, setIsShaking] = useState(false);
+  const [toastMessage, setToastMessage] = useState(null);
+
+  // 3. LOAD GAME ON STARTUP
+  useEffect(() => {
+    const saved = loadGameState();
+    
+    if (saved && saved.dayIndex === dayIndex) {
+      setGuesses(saved.guesses);
+      setTurn(saved.turn);
+      setIsCorrect(saved.isCorrect);
+      setUsedKeys(saved.usedKeys);
+      setIsGameFinished(saved.isGameFinished);
+    } 
+  }, [dayIndex]);
+
+  // 4. SAVE GAME ON EVERY UPDATE
+  useEffect(() => {
+    if (turn > 0 || isGameFinished || currentGuess.length > 0) {
+      saveGameState({
+        guesses,
+        turn,
+        isCorrect,
+        usedKeys,
+        isGameFinished,
+        dayIndex
+      });
+    }
+  }, [guesses, turn, isCorrect, usedKeys, isGameFinished, dayIndex, currentGuess]);
+
+  // 5. KEYBOARD LISTENER
+  useEffect(() => {
+    if (!gameStarted || isGameFinished) return; 
+
+    const handlePhysicalKey = (e) => {
+      if (e.key === 'Enter') onEnter();
+      else if (e.key === 'Backspace') onDelete();
+      else if (/^[а-яА-ЯёЁa-zA-Z1]$/.test(e.key) || e.key === 'I') {
+        const char = e.key === '1' ? 'I' : e.key.toUpperCase();
+        onChar(char);
+      }
+    };
+    window.addEventListener('keydown', handlePhysicalKey);
+    return () => window.removeEventListener('keydown', handlePhysicalKey);
+  }, [currentGuess, turn, isCorrect, gameStarted, isGameFinished]);
+
+  // --- GAMEPLAY ACTIONS ---
+
+  const onChar = (char) => {
+    if (currentGuess.length < 5 && turn < 6 && !isCorrect) {
+      setCurrentGuess((prev) => prev + char);
+    }
+  };
+
+  const onDelete = () => {
+    setCurrentGuess((prev) => prev.slice(0, -1));
+  };
+
+  const onEnter = () => {
+    if (turn >= 6 || isCorrect || isGameFinished) return;
+
+    // VALIDATION A: Length
+    if (currentGuess.length !== 5) { 
+      triggerError('Цхьа хIума гIалат ду'); // Not enough letters
+      return; 
+    }
+    
+    // VALIDATION B: Dictionary (Cleaning the search to prevent hidden character errors)
+    const normalizedGuess = currentGuess.trim().toUpperCase();
+    const wordExists = WORDS.some(w => 
+        w.word.trim().toUpperCase() === normalizedGuess
+    );
+
+    if (!wordExists) { 
+      triggerError('Дош дацаре терра ду'); // Not in word list
+      return; 
+    }
+
+    // --- PROCESS VALID GUESS ---
+    const formatted = formatGuess();
+    const newGuesses = [...guesses];
+    newGuesses[turn] = formatted;
+    setGuesses(newGuesses);
+
+    const newUsedKeys = { ...usedKeys };
+    formatted.forEach((l) => {
+      const currentColor = newUsedKeys[l.key];
+      if (l.color === 'correct') newUsedKeys[l.key] = 'correct';
+      else if (l.color === 'present' && currentColor !== 'correct') newUsedKeys[l.key] = 'present';
+      else if (l.color === 'absent' && currentColor !== 'correct' && currentColor !== 'present') newUsedKeys[l.key] = 'absent';
+    });
+    setUsedKeys(newUsedKeys);
+
+    let won = (normalizedGuess === SOLUTION.trim().toUpperCase());
+    let lost = (turn === 5 && !won);
+
+    if (won) {
+      setIsCorrect(true);
+      setIsGameFinished(true);
+      setTimeout(() => setShowModal(true), 2500);
+    } else if (lost) {
+      setIsGameFinished(true);
+      setTimeout(() => setShowModal(true), 2500);
+    }
+
+    setTurn(prev => prev + 1);
+    setCurrentGuess('');
+  };
+
+  const triggerError = (msg) => {
+    setIsShaking(true);
+    setToastMessage(msg);
+    setTimeout(() => setIsShaking(false), 600);
+    setTimeout(() => setToastMessage(null), 2000);
+  };
+
+  const formatGuess = () => {
+    let solArr = [...SOLUTION.trim().toUpperCase()];
+    let formatted = [...currentGuess].map((l) => ({ key: l, color: 'absent' }));
+    
+    formatted.forEach((l, i) => {
+      if (solArr[i] === l.key) {
+        formatted[i].color = 'correct';
+        solArr[i] = null;
+      }
+    });
+    
+    formatted.forEach((l, i) => {
+      if (solArr.includes(l.key) && l.color !== 'correct') {
+        formatted[i].color = 'present';
+        solArr[solArr.indexOf(l.key)] = null;
+      }
+    });
+    return formatted;
+  };
+
+  // --- RENDER ---
+
+  if (!gameStarted) {
+    return <Intro 
+      onStart={() => {
+        setGameStarted(true);
+        if (isGameFinished) {
+          setTimeout(() => setShowModal(true), 500);
+        }
+      }} 
+      isGameFinished={isGameFinished} 
+    />;
+  }
+
+  return (
+    <div className="flex flex-col h-full w-full max-w-lg mx-auto overflow-hidden bg-[#121213] relative">
+      <header className="flex h-16 items-center justify-between px-4 border-b border-[#3a3a3c] shrink-0">
+         <button 
+           onClick={() => setGameStarted(false)}
+           className="text-[#565758] hover:text-white transition-colors p-2 -ml-2"
+           aria-label="Exit to Home"
+         >
+           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+           </svg>
+         </button>
+         
+         <h1 
+           onClick={() => setGameStarted(false)} 
+           className="text-3xl font-black tracking-widest text-white uppercase cursor-pointer hover:opacity-80 transition-opacity select-none"
+         >
+           ДОШ
+         </h1>
+         
+         <button 
+           onClick={() => { if(isGameFinished) setShowModal(true); }}
+           className={`text-[#565758] hover:text-white transition-all p-2 -mr-2 ${isGameFinished ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+           aria-label="Show Stats"
+         >
+           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+             <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+           </svg>
+         </button>
+      </header>
+
+      {toastMessage && (
+        <div className="absolute top-20 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in">
+          <div className="bg-white text-black font-bold px-4 py-3 rounded text-sm uppercase tracking-wide shadow-lg">
+            {toastMessage}
+          </div>
+        </div>
+      )}
+
+      <main className="flex-grow flex items-center justify-center p-2 overflow-hidden">
+        <Grid guesses={guesses} currentGuess={currentGuess} turn={turn} isShaking={isShaking} />
+      </main>
+
+      <footer className="shrink-0 pb-safe">
+        <Keyboard onChar={onChar} onDelete={onDelete} onEnter={onEnter} usedKeys={usedKeys} />
+      </footer>
+
+      <Modal 
+        isVisible={showModal} 
+        isWon={isCorrect} 
+        solution={SOLUTION} 
+        translation={translation}
+        guesses={guesses}
+        turn={turn}
+        nextDayTimestamp={nextDay}
+        onClose={() => setShowModal(false)}
+      />
+    </div>
+  );
+}
+
+
+const onEnter = () => {
+    console.log("Enter Pressed. Guess:", currentGuess); // DEBUG
+
+    if (turn >= 6 || isCorrect || isGameFinished) return;
+
+    // VALIDATION A: Length
+    if (currentGuess.length !== 5) { 
+      console.log("Validation Failed: Length"); 
+      triggerError('Цхьа хIума гIалат ду'); 
+      return; 
+    }
+    
+    // VALIDATION B: Dictionary (CLEANED CHECK)
+    const normalizedGuess = currentGuess.trim().toUpperCase();
+    const wordExists = WORDS.some(w => {
+        const dictionaryWord = w.word.trim().toUpperCase();
+        return dictionaryWord === normalizedGuess;
+    });
+
+    if (!wordExists) { 
+      console.log("Validation Failed: Not in dictionary"); 
+      triggerError('Дош дацаре терра ду'); 
+      return; 
+    }
+
+    console.log("Validation Passed. Processing...");
+
+    // --- PROCESS VALID GUESS ---
+    const formatted = formatGuess();
+    const newGuesses = [...guesses];
+    newGuesses[turn] = formatted;
+    setGuesses(newGuesses);
+
+    // Update Used Keys for the Keyboard
+    const newUsedKeys = { ...usedKeys };
+    formatted.forEach((l) => {
+      const currentColor = newUsedKeys[l.key];
+      if (l.color === 'correct') newUsedKeys[l.key] = 'correct';
+      else if (l.color === 'present' && currentColor !== 'correct') newUsedKeys[l.key] = 'present';
+      else if (l.color === 'absent' && currentColor !== 'correct' && currentColor !== 'present') newUsedKeys[l.key] = 'absent';
+    });
+    setUsedKeys(newUsedKeys);
+
+    // WIN/LOSS CHECK (CLEANED)
+    const cleanSolution = SOLUTION.trim().toUpperCase();
+    let won = (normalizedGuess === cleanSolution);
+    let lost = (turn === 5 && !won);
+
+    if (won) {
+      setIsCorrect(true);
+      setIsGameFinished(true);
+      setTimeout(() => setShowModal(true), 2500);
+    } else if (lost) {
+      setIsGameFinished(true);
+      setTimeout(() => setShowModal(true), 2500);
+    }
+
+    // Move to next turn
+    setTurn(prev => prev + 1);
+    setCurrentGuess('');
+  };

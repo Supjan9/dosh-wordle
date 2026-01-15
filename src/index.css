@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+/* Keep your custom app-locking CSS below */
+body {
+  margin: 0;
+  background-color: #121213;
+  color: white;
+  overflow: hidden; 
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
+  display: flex;
+  justify-content: center;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+
+/* 1. POP Animation (When typing) */
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+.animate-pop {
+  animation: pop 0.1s ease-in-out;
+}
+
+/* 2. FLIP Animation (When guessing) */
+@keyframes flip {
+  0% { transform: rotateX(0); background-color: transparent; border-color: #3a3a3c; }
+  45% { transform: rotateX(90deg); background-color: transparent; border-color: #3a3a3c; }
+  55% { transform: rotateX(90deg); background-color: var(--correct-color); border-color: var(--correct-color); }
+  100% { transform: rotateX(0); background-color: var(--correct-color); border-color: var(--correct-color); }
+}
+/* We use a CSS variable --correct-color to pass the Green/Yellow dynamically */
+.animate-flip {
+  animation: flip 0.5s ease forwards;
+}
+
+/* 3. SHAKE Animation (Error) */
+@keyframes shake {
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(2px); }
+  30%, 50%, 70% { transform: translateX(-4px); }
+  40%, 60% { transform: translateX(4px); }
+}
+.animate-shake {
+  animation: shake 0.6s ease-in-out;
+}
+
+@keyframes slide-up {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out forwards;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out forwards;
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 20px);
+}
+
+/* Safe Area Utility */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 20px);
+}
+
+/* Custom Scrollbar (Optional - makes the history list look nicer) */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #121213; 
+}
+::-webkit-scrollbar-thumb {
+  background: #3a3a3c; 
+  border-radius: 3px;
+}

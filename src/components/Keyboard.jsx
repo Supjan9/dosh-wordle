@@ -41,14 +41,14 @@ export default function Keyboard({ onChar, onDelete, onEnter, usedKeys }) {
           // UPDATED: Increased from h-9 to h-12 (48px)
           className="flex-1 h-12 bg-[#565758] rounded-lg font-bold text-xs sm:text-sm text-white uppercase tracking-wider active:bg-[#404040] transition-colors"
         >
-          ENTER
+          ДӀадайа
         </button>
         <button
           onClick={onDelete}
           // UPDATED: Increased from h-9 to h-12 (48px)
           className="flex-1 h-12 bg-[#565758] rounded-lg font-bold text-xs sm:text-sm text-white uppercase tracking-wider active:bg-[#404040] transition-colors"
         >
-          DELETE
+          Чудаккха
         </button>
       </div>
 

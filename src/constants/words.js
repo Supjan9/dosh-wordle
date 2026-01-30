@@ -1459,7 +1459,9 @@ export const WORDS = [
   { word: 'ӀОВША', translation: 'To taste / To chew' },
   { word: 'ӀОТТА', translation: 'To stick / To push' },
   { word: 'ӀУЬРГ', translation: 'Hole' },
-  { word: 'ӀУЬӀА', translation: 'To prod / To poke' }
+  { word: 'ӀУЬӀА', translation: 'To prod / To poke' },
+  { word: 'ИРТIУ', translation: 'Sturgeon' },
+  { word: 'ДУРСЕ', translation: 'Punctual' },
 ];
 
 export const ALPHABET = [

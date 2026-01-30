@@ -25,7 +25,7 @@ export default function Intro({ onStart, isGameFinished }) {
             <p>
               6 гӀортарахь <span className="font-bold text-white">къайлаха дош</span> караде.
             </p>
-            <p>Керла дош хӀора 3 сахьт даьлча!</p>
+            <p>Керла дош хӀора дийнахь!</p>
           </div>
         ) : (
           <div className="mb-12 p-4 bg-[#1a1a1b] rounded-lg border border-[#3a3a3c]">

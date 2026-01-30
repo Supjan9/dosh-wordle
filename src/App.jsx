@@ -5,6 +5,7 @@ import Modal from './components/Modal';
 import Intro from './components/Intro';
 import { WORDS } from './constants/words';
 import { getWordOfDay, loadGameState, saveGameState } from './lib/gameLogic';
+import { HelpCircle } from 'lucide-react'; // Imported HelpCircle
 
 export default function App() {
   // 1. Get Today's Word Data (Refreshes every 24 hours based on local midnight)
@@ -179,7 +180,19 @@ export default function App() {
   return (
     <div className="flex flex-col h-[100dvh] w-full max-w-lg mx-auto overflow-hidden bg-[#121213] relative">
       
-      <header className="flex h-8 items-center justify-end px-4 shrink-0 mt-0 pt-1">
+      {/* UPDATED HEADER: Now justifies between to hold both buttons */}
+      <header className="flex h-8 items-center justify-between px-4 shrink-0 mt-0 pt-1">
+         
+         {/* LEFT BUTTON: Back to Intro (Help) */}
+         <button 
+           onClick={() => setGameStarted(false)}
+           className="text-[#565758] hover:text-white transition-all p-2 -ml-2"
+           aria-label="Show Intro"
+         >
+           <HelpCircle className="h-5 w-5" />
+         </button>
+
+         {/* RIGHT BUTTON: Show Stats (Only visible if game is finished) */}
          <button 
            onClick={() => { if(isGameFinished) setShowModal(true); }}
            className={`text-[#565758] hover:text-white transition-all p-2 -mr-2 ${isGameFinished ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
@@ -207,7 +220,6 @@ export default function App() {
         <Keyboard onChar={onChar} onDelete={onDelete} onEnter={onEnter} usedKeys={usedKeys} />
       </footer>
 
-      {/* UPDATED MODAL WITH DAY NUMBER */}
       <Modal 
         isVisible={showModal} 
         isWon={isCorrect} 
@@ -216,7 +228,7 @@ export default function App() {
         guesses={guesses}
         turn={turn}
         nextDayTimestamp={nextDay}
-        dayNumber={intervalIndex} // <--- THIS IS THE NEW PART
+        dayNumber={intervalIndex}
         onClose={() => setShowModal(false)}
       />
     </div>

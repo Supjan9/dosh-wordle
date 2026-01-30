@@ -1,7 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { X, Copy, Check } from 'lucide-react'; // Removed Share2, added Copy
+import { X, Copy, Check } from 'lucide-react';
 
-export default function Modal({ isWon, solution, translation, turn, guesses, isVisible, onClose, nextDayTimestamp }) {
+export default function Modal({ 
+  isWon, 
+  solution, 
+  translation, 
+  turn, 
+  guesses, 
+  isVisible, 
+  onClose, 
+  nextDayTimestamp,
+  dayNumber // <--- New Prop Received Here
+}) {
   const [shareText, setShareText] = useState('ДЕКЪА'); // "Share"
   const [timeLeft, setTimeLeft] = useState('');
 
@@ -41,10 +51,11 @@ export default function Modal({ isWon, solution, translation, turn, guesses, isV
       })
       .join('\n');
 
-    const title = `ДОШ ${isWon ? turn : 'X'}/6`;
-    const textToShare = `${title}\n\n${emojiGrid}\n\nhttps://supjan9.github.io/dosh-wordle`;
+    // 2. Updated Title with Day Number
+    const title = `ДОШ #${dayNumber} ${isWon ? turn : 'X'}/6`;
+    const textToShare = `${title}\n\n${emojiGrid}\n\nvaydosh.com`;
 
-    // 2. Copy to Clipboard (Directly)
+    // 3. Copy to Clipboard (Directly)
     try {
       // Modern Copy Method (Works on HTTPS and Localhost)
       if (navigator.clipboard && window.isSecureContext) {
@@ -95,6 +106,11 @@ export default function Modal({ isWon, solution, translation, turn, guesses, isV
         <h2 className="text-3xl font-black mb-1 text-white uppercase tracking-wide">
           {isWon ? 'ТОЛАМ!' : 'ЭШАМ...'}
         </h2>
+
+        {/* NEW: Day Number Display */}
+        <p className="text-[#818384] text-sm font-bold uppercase tracking-widest mb-2">
+          ДОШ #{dayNumber}
+        </p>
         
         {/* Solution Display */}
         <div className="my-6 bg-[#121213] rounded-lg p-4 border border-[#3a3a3c] shadow-inner">
@@ -133,7 +149,6 @@ export default function Modal({ isWon, solution, translation, turn, guesses, isV
               ${shareText === 'СХЬАИЙЦИ!' ? 'bg-white text-black' : 'bg-[#538d4e] hover:bg-[#467a41] text-white'}
             `}
           >
-            {/* UPDATED ICON: Uses Copy instead of Share2 */}
             {shareText === 'ДЕКЪА' && <Copy className="w-4 h-4" />}
             {shareText === 'СХЬАИЙЦИ!' && <Check className="w-4 h-4" />}
             {shareText}

@@ -36,19 +36,20 @@ export default function Keyboard({ onChar, onDelete, onEnter, usedKeys }) {
 
       {/* 2. The Action Row (Enter & Delete) */}
       <div className="flex gap-2 px-4">
+        {/* ENTER BUTTON: Green Text (Чудаккха) */}
         <button
           onClick={onEnter}
-          // UPDATED: Increased from h-9 to h-12 (48px)
-          className="flex-1 h-12 bg-[#565758] rounded-lg font-bold text-xs sm:text-sm text-white uppercase tracking-wider active:bg-[#404040] transition-colors"
-        >
-          ДӀадайа
-        </button>
-        <button
-          onClick={onDelete}
-          // UPDATED: Increased from h-9 to h-12 (48px)
-          className="flex-1 h-12 bg-[#565758] rounded-lg font-bold text-xs sm:text-sm text-white uppercase tracking-wider active:bg-[#404040] transition-colors"
+          className="flex-1 h-12 bg-[#565758] rounded-lg font-bold text-xs sm:text-sm text-[#6aaa64] uppercase tracking-wider active:bg-[#404040] transition-colors"
         >
           Чудаккха
+        </button>
+
+        {/* DELETE BUTTON: Red Text (ДӀадайа) */}
+        <button
+          onClick={onDelete}
+          className="flex-1 h-12 bg-[#565758] rounded-lg font-bold text-xs sm:text-sm text-red-500 uppercase tracking-wider active:bg-[#404040] transition-colors"
+        >
+          ДӀадайа
         </button>
       </div>
 

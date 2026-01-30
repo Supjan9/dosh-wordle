@@ -7,7 +7,7 @@ import { WORDS } from './constants/words';
 import { getWordOfDay, loadGameState, saveGameState } from './lib/gameLogic';
 
 export default function App() {
-  // 1. Get Today's Word Data (Refreshes every 3 hours)
+  // 1. Get Today's Word Data (Refreshes every 24 hours based on local midnight)
   const { solution, translation, intervalIndex, nextDay } = getWordOfDay();
   const SOLUTION = solution; 
 
@@ -199,11 +199,6 @@ export default function App() {
         </div>
       )}
 
-      {/* MAIN CHANGES:
-         1. Changed 'justify-center' to 'justify-start'. This moves the grid to the top.
-         2. Added 'pt-4' (padding-top) so the grid doesn't touch the header directly. 
-            The grid will now consume that top empty space.
-      */}
       <main className="flex-grow flex flex-col items-center justify-start p-1 pt-4 min-h-0 mb-2 w-full">
         <Grid guesses={guesses} currentGuess={currentGuess} turn={turn} isShaking={isShaking} />
       </main>
@@ -212,6 +207,7 @@ export default function App() {
         <Keyboard onChar={onChar} onDelete={onDelete} onEnter={onEnter} usedKeys={usedKeys} />
       </footer>
 
+      {/* UPDATED MODAL WITH DAY NUMBER */}
       <Modal 
         isVisible={showModal} 
         isWon={isCorrect} 
@@ -220,6 +216,7 @@ export default function App() {
         guesses={guesses}
         turn={turn}
         nextDayTimestamp={nextDay}
+        dayNumber={intervalIndex} // <--- THIS IS THE NEW PART
         onClose={() => setShowModal(false)}
       />
     </div>

@@ -5,5 +5,5 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   // repository name
-  base: '/dosh-wordle/', 
+  base: '/', 
 })

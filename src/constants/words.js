@@ -773,7 +773,7 @@ export const WORDS = [
   { word: 'ЭСАРШ', translation: 'Felt boots' },
   { word: 'МЕЛЛА', translation: 'Drunk / Somewhat' },
   { word: 'БАЛОЗ', translation: 'Wax' },
-  { word: 'БУЬКА', translation: 'Ball' },
+  { word: 'БУЬКА', translation: 'Clay pot' },
   { word: 'АРАЗА', translation: 'Discontent / Displeasure' },
   { word: 'ТУРКО', translation: 'Turk' },
   { word: 'КЪУЙН', translation: 'Thieves’' },

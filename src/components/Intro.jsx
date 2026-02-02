@@ -5,21 +5,21 @@ export default function Intro({ onStart, isGameFinished }) {
   return (
     // 1. h-[100dvh] ensures full height on mobile browsers.
     <div className="flex flex-col h-[100dvh] w-full bg-[#121213] text-white p-4 text-center animate-fade-in overflow-hidden">
-      
+
       {/* MIDDLE SECTION (The Content)
          1. flex-1: Makes this section expand to fill all empty space.
          2. flex-col + justify-center: Centers the content vertically within that expanded space.
          3. w-full: Ensures it centers horizontally.
       */}
       <div className="flex-1 flex flex-col items-center justify-center w-full">
-        
+
         <div className="mb-6 text-6xl">🏔️</div>
 
         <h1 className="text-5xl font-black tracking-[0.2em] mb-4 uppercase">ДОШ</h1>
         <p className="text-[#818384] mb-12 uppercase tracking-widest text-xs font-bold">
           Нохчийн меттан ловзар
         </p>
-        
+
         {!isGameFinished ? (
           <div className="max-w-xs text-sm text-[#d7dadc] mb-12 space-y-4 leading-relaxed">
             <p>
@@ -34,7 +34,7 @@ export default function Intro({ onStart, isGameFinished }) {
           </div>
         )}
 
-        <button 
+        <button
           onClick={onStart}
           className={`${isGameFinished ? 'bg-[#538d4e]' : 'bg-white text-black'} 
             hover:opacity-90 font-bold py-4 px-12 rounded-full text-lg tracking-widest 
@@ -48,8 +48,15 @@ export default function Intro({ onStart, isGameFinished }) {
           1. shrink-0: Prevents the footer from getting squashed if the screen is tiny.
           2. pb-8: Gives it breathing room from the bottom edge. 
       */}
-      <div className="shrink-0 text-xs text-[#565758] pb-8">
-        Терахь: {new Date().toLocaleDateString()}
+      <div className="mt-8 pt-4 border-t border-[#3a3a3c]/30 flex flex-col items-center gap-2 text-[10px] uppercase tracking-widest text-[#565758]">
+        {/* Date and Email together in a centered block */}
+        <div className="flex flex-wrap justify-center gap-x-4 gap-y-1">
+          <span>Терахь: {new Date().toLocaleDateString()}</span>
+          <span className="hidden sm:inline-block text-[#3a3a3c]">|</span>
+          <span>
+            ЗӀе: <a href="mailto:admin@vaydosh.com" className="text-[#d7dadc] hover:text-white transition-colors lowercase tracking-normal">admin@vaydosh.com</a>
+          </span>
+        </div>
       </div>
 
     </div>

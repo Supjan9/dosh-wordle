@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { X, Copy, Check } from 'lucide-react';
 
-export default function Modal({ 
-  isWon, 
-  solution, 
-  translation, 
-  turn, 
-  guesses, 
-  isVisible, 
-  onClose, 
+export default function Modal({
+  isWon,
+  solution,
+  translation,
+  turn,
+  guesses,
+  isVisible,
+  onClose,
   nextDayTimestamp,
   dayNumber // <--- New Prop Received Here
 }) {
@@ -21,7 +21,7 @@ export default function Modal({
     const timer = setInterval(() => {
       const now = new Date();
       const diff = nextDayTimestamp - now;
-      
+
       if (diff <= 0) {
         setTimeLeft('КИЙЧА!'); // "Ready!"
         clearInterval(timer);
@@ -41,7 +41,7 @@ export default function Modal({
   const handleShare = async () => {
     // 1. Generate Emoji Grid
     const emojiGrid = guesses
-      .slice(0, turn) 
+      .slice(0, turn)
       .map((row) => {
         return row.map((tile) => {
           if (tile.color === 'correct') return '🟩';
@@ -70,14 +70,14 @@ export default function Modal({
         document.body.appendChild(textArea);
         textArea.focus();
         textArea.select();
-        
+
         try {
           document.execCommand('copy');
           triggerCopyFeedback();
         } catch (err) {
           alert("Copy failed. Please take a screenshot!");
         }
-        
+
         document.body.removeChild(textArea);
       }
     } catch (err) {
@@ -93,10 +93,10 @@ export default function Modal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in px-4">
       <div className="bg-[#1e1e1f] border border-[#3a3a3c] p-6 rounded-xl shadow-2xl w-full max-w-sm text-center relative animate-slide-up">
-        
+
         {/* Close Button */}
-        <button 
-          onClick={onClose} 
+        <button
+          onClick={onClose}
           className="absolute top-3 right-4 text-[#565758] hover:text-white transition-colors"
         >
           <X className="w-6 h-6" />
@@ -111,7 +111,7 @@ export default function Modal({
         <p className="text-[#818384] text-sm font-bold uppercase tracking-widest mb-2">
           ДОШ #{dayNumber}
         </p>
-        
+
         {/* Solution Display */}
         <div className="my-6 bg-[#121213] rounded-lg p-4 border border-[#3a3a3c] shadow-inner">
           <p className="text-[#818384] text-xs uppercase tracking-widest mb-2">ХӀара дош дара</p>
@@ -138,11 +138,11 @@ export default function Modal({
         {/* Footer: Timer & Share */}
         <div className="flex gap-4 border-t border-[#3a3a3c] pt-6">
           <div className="flex-1 flex flex-col justify-center items-center border-r border-[#3a3a3c] pr-4">
-             <span className="text-[10px] font-bold text-[#818384] uppercase tracking-wider">Керла дош</span>
-             <span className="text-xl font-mono text-white tracking-widest">{timeLeft}</span>
+            <span className="text-[10px] font-bold text-[#818384] uppercase tracking-wider">Керла дош</span>
+            <span className="text-xl font-mono text-white tracking-widest">{timeLeft}</span>
           </div>
-          
-          <button 
+
+          <button
             onClick={handleShare}
             className={`
               flex-1 font-bold py-3 rounded-lg uppercase tracking-widest text-sm transition-all transform active:scale-95 flex items-center justify-center gap-2 shadow-lg
@@ -155,6 +155,12 @@ export default function Modal({
           </button>
         </div>
 
+        {/*FEEDBACK TEXT */}
+        <div className="mt-6 pt-2 border-t border-[#3a3a3c]/30">
+          <p className="text-[12px] text-[#565758]">
+            ЗӀе: <a href="mailto:admin@vaydosh.com" className="text-[#d7dadc] hover:text-white transition-colors">admin@vaydosh.com</a>
+          </p>
+        </div>
       </div>
     </div>
   );

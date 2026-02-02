@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async'; // Import Helmet
 import Grid from './components/Grid';
 import Keyboard from './components/Keyboard';
 import Modal from './components/Modal';
 import Intro from './components/Intro';
 import { WORDS } from './constants/words';
 import { getWordOfDay, loadGameState, saveGameState } from './lib/gameLogic';
-import { HelpCircle } from 'lucide-react'; // Imported HelpCircle
+import { HelpCircle } from 'lucide-react';
 
 export default function App() {
-  // 1. Get Today's Word Data (Refreshes every 24 hours based on local midnight)
+  // 1. Get Today's Word Data
   const { solution, translation, intervalIndex, nextDay } = getWordOfDay();
   const SOLUTION = solution; 
 
@@ -169,39 +170,51 @@ export default function App() {
   // --- RENDER ---
 
   if (!gameStarted) {
-    return <Intro 
-      onStart={() => {
-        setGameStarted(true);
-      }} 
-      isGameFinished={isGameFinished} 
-    />;
+    return (
+      <>
+        <Helmet>
+          <title>Dosh Wordle - Чеченская игра в слова</title>
+          <meta name="description" content="Ежедневная игра в слова на чеченском языке. Угадайте слово дня!" />
+        </Helmet>
+        <Intro 
+          onStart={() => {
+            setGameStarted(true);
+          }} 
+          isGameFinished={isGameFinished} 
+        />
+      </>
+    );
   }
 
   return (
     <div className="flex flex-col h-[100dvh] w-full max-w-lg mx-auto overflow-hidden bg-[#121213] relative">
-      
-      {/* UPDATED HEADER: Now justifies between to hold both buttons */}
-      <header className="flex h-8 items-center justify-between px-4 shrink-0 mt-0 pt-1">
-         
-         {/* LEFT BUTTON: Back to Intro (Help) */}
-         <button 
-           onClick={() => setGameStarted(false)}
-           className="text-[#565758] hover:text-white transition-all p-2 -ml-2"
-           aria-label="Show Intro"
-         >
-           <HelpCircle className="h-5 w-5" />
-         </button>
+      <Helmet>
+        <title>Dosh Wordle - Play</title>
+        <meta name="description" content={`Guess the 5-letter Chechen word. Game #${intervalIndex}`} />
+        <meta property="og:title" content="Dosh Wordle" />
+        <meta property="og:description" content="Can you guess the Chechen word of the day?" />
+        <meta property="og:type" content="website" />
+        <meta name="theme-color" content="#121213" />
+      </Helmet>
 
-         {/* RIGHT BUTTON: Show Stats (Only visible if game is finished) */}
-         <button 
-           onClick={() => { if(isGameFinished) setShowModal(true); }}
-           className={`text-[#565758] hover:text-white transition-all p-2 -mr-2 ${isGameFinished ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-           aria-label="Show Stats"
-         >
-           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-             <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-           </svg>
-         </button>
+      <header className="flex h-8 items-center justify-between px-4 shrink-0 mt-0 pt-1">
+          <button 
+            onClick={() => setGameStarted(false)}
+            className="text-[#565758] hover:text-white transition-all p-2 -ml-2"
+            aria-label="Show Intro"
+          >
+            <HelpCircle className="h-5 w-5" />
+          </button>
+
+          <button 
+            onClick={() => { if(isGameFinished) setShowModal(true); }}
+            className={`text-[#565758] hover:text-white transition-all p-2 -mr-2 ${isGameFinished ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+            aria-label="Show Stats"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          </button>
       </header>
 
       {toastMessage && (
